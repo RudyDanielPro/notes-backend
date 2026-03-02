@@ -33,7 +33,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
         
-
         String path = request.getRequestURI();
         if (path.startsWith("/api/auth/")) {
             filterChain.doFilter(request, response);
@@ -42,31 +41,27 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         
         String authHeader = request.getHeader("Authorization");
         
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-        
-        String token = authHeader.substring(7);
-    
-        if (!jwtUtil.validarToken(token)) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-        
-        String email = jwtUtil.extraerEmail(token);
-        
-        User usuario = userRepository.findByEmail(email)
-            .orElse(null);
-        if (usuario != null) {
-            UsernamePasswordAuthenticationToken auth = 
-                new UsernamePasswordAuthenticationToken(
-                    usuario, 
-                    null, 
-                    Collections.emptyList()
-                );
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
             
-            SecurityContextHolder.getContext().setAuthentication(auth);
+            try {
+                if (jwtUtil.validarToken(token)) {
+                    String email = jwtUtil.extraerEmail(token);
+                    User usuario = userRepository.findByEmail(email).orElse(null);
+                    
+                    if (usuario != null) {
+                        UsernamePasswordAuthenticationToken auth = 
+                            new UsernamePasswordAuthenticationToken(
+                                usuario, 
+                                null, 
+                                Collections.emptyList()
+                            );
+                        SecurityContextHolder.getContext().setAuthentication(auth);
+                    }
+                }
+            } catch (Exception e) {
+                System.out.println("Error procesando token JWT: " + e.getMessage());
+            }
         }
         
         filterChain.doFilter(request, response);

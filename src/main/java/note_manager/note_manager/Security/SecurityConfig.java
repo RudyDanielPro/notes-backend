@@ -25,20 +25,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-            // 1. Deshabilitar CSRF (no necesario con JWT)
             .csrf(csrf -> csrf.disable())
-            
-            // 2. Hacer stateless (sin sesiones)
             .sessionManagement(session -> 
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            
-            // 3. Configurar autorización de endpoints
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll()                
+                .requestMatchers("/api/auth/**").permitAll()
                 .anyRequest().authenticated()
             )
-            
-            // 4. Agregar nuestro filtro JWT antes del filtro de UsernamePassword
             .addFilterBefore(jwtAuthenticationFilter, 
                 UsernamePasswordAuthenticationFilter.class);
         
