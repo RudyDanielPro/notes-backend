@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @RestController
 @RequestMapping("/api")
@@ -40,25 +39,32 @@ public class NoteController {
     }
 
     @GetMapping("/notes")
-    public List<NoteResponse> listarNotas(@RequestParam Long id) {
-        return noteService.getUserNotes(id);
+    public List<NoteResponse> listarNotas() {
+        User usuario = (User) SecurityContextHolder.getContext()
+                .getAuthentication().getPrincipal();
+        return noteService.getUserNotes(usuario.getId());
     }
 
     @GetMapping("/notes/{noteId}")
-    public NoteResponse obtenerNota(@PathVariable Long noteId, @RequestParam Long id) {
-        return noteService.getNoteById(noteId, id);
+    public NoteResponse obtenerNota(@PathVariable Long noteId) {
+        User usuario = (User) SecurityContextHolder.getContext()
+                .getAuthentication().getPrincipal();
+        return noteService.getNoteById(noteId, usuario.getId());
     }
 
     @PutMapping("/notes/{noteId}")
     public NoteResponse actualizarNota(@PathVariable Long noteId,
-            @RequestBody NoteRequest request,
-            @RequestParam Long id) {
-        return noteService.updateNote(noteId, request, id);
+            @RequestBody NoteRequest request) {
+        User usuario = (User) SecurityContextHolder.getContext()
+                .getAuthentication().getPrincipal();
+        return noteService.updateNote(noteId, request, usuario.getId());
     }
 
     @DeleteMapping("/notes/{noteId}")
-    public ResponseEntity<Void> eliminarNota(@PathVariable Long noteId, @RequestParam Long id) {
-        noteService.deleteNote(noteId, id);
+    public ResponseEntity<Void> eliminarNota(@PathVariable Long noteId) {
+        User usuario = (User) SecurityContextHolder.getContext()
+                .getAuthentication().getPrincipal();
+        noteService.deleteNote(noteId, usuario.getId());
         return ResponseEntity.noContent().build();
     }
 
