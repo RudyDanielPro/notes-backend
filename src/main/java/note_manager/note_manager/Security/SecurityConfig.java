@@ -34,9 +34,7 @@ public class SecurityConfig {
             
             // 3. Configurar autorización de endpoints
             .authorizeHttpRequests(auth -> auth
-                // Rutas públicas
-                .requestMatchers("/auth/**").permitAll()
-                // Cualquier otra ruta requiere autenticación
+                .requestMatchers("/api/auth/**").permitAll()                
                 .anyRequest().authenticated()
             )
             
