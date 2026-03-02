@@ -18,7 +18,7 @@ import jakarta.persistence.Table;
 @Entity
 @Table(name = "Notes")
 public class Note {
-    
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -30,23 +30,26 @@ public class Note {
     @Column(name = "Título", nullable = false)
     private String titulo;
 
-    @Column(name= "Contenido", nullable = false)
+    @Column(name = "Contenido", nullable = false)
     private String contenido;
 
     @Column(name = "Fecha", nullable = false)
     private LocalDateTime fecha;
 
     @ElementCollection
-    @CollectionTable(name="note_etiquetas" ,joinColumns = @JoinColumn(name="note_id"))
-    @Column(name="Etiquetas", nullable = false)
-    private List<String> etiquetas=new ArrayList<>();
+    @CollectionTable(name = "note_etiquetas", joinColumns = @JoinColumn(name = "note_id"))
+    @Column(name = "Etiquetas", nullable = false)
+    private List<String> etiquetas = new ArrayList<>();
 
     public Note(User usuario, String titulo, String contenido, LocalDateTime fecha, List<String> etiquetas) {
         this.usuario = usuario;
         this.titulo = titulo;
         this.contenido = contenido;
         this.fecha = fecha;
-        this.etiquetas=etiquetas;
+        this.etiquetas = etiquetas;
+    }
+
+    public Note() {
     }
 
     public Long getId() {
@@ -88,7 +91,7 @@ public class Note {
     public void setFecha(LocalDateTime fecha) {
         this.fecha = fecha;
     }
-    
+
     public List<String> getEtiquetas() {
         return etiquetas;
     }
@@ -97,11 +100,11 @@ public class Note {
         this.etiquetas = etiquetas;
     }
 
-    public void addEtiqueta(String etiqueta){
+    public void addEtiqueta(String etiqueta) {
         this.etiquetas.add(etiqueta);
     }
-    
-    public void removeEtiqueta(String etiqueta){
+
+    public void removeEtiqueta(String etiqueta) {
         this.etiquetas.remove(etiqueta);
     }
 }
