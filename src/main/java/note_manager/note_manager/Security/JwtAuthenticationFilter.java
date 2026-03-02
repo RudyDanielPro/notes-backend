@@ -36,7 +36,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String path = request.getRequestURI();
         System.out.println("🔍 Filtro procesando: " + path);
         
-        if (path.startsWith("/api/auth/")) {
+        // CORRECCIÓN: Solo saltamos el filtro para login y register explícitamente
+        if (path.equals("/api/auth/login") || path.equals("/api/auth/register")) {
             System.out.println("➡️ Ruta pública, saltando filtro");
             filterChain.doFilter(request, response);
             return;
@@ -67,7 +68,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                             );
                         SecurityContextHolder.getContext().setAuthentication(auth);
                         System.out.println("✅ Autenticación GUARDADA en SecurityContext");
-                        System.out.println("🔍 Verificación: " + SecurityContextHolder.getContext().getAuthentication());
                     }
                 } else {
                     System.out.println("❌ Token inválido");

@@ -39,16 +39,22 @@ public class AuthController  {
     }       
 
     @GetMapping("/auth/me")
-public UserProfile getCurrentUser() {
-    User usuario = (User) SecurityContextHolder.getContext()
-            .getAuthentication().getPrincipal();
-    return new UserProfile(
-        usuario.getId(),
-        usuario.getNombre(),
-        usuario.getApellido(),
-        usuario.getEdad(),
-        usuario.getEmail(),
-        usuario.getRol()
-    );
-}
+    public UserProfile getCurrentUser() {
+        // CORRECCIÓN: Extracción segura del usuario
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        
+        if (principal instanceof User) {
+            User usuario = (User) principal;
+            return new UserProfile(
+                usuario.getId(),
+                usuario.getNombre(),
+                usuario.getApellido(),
+                usuario.getEdad(),
+                usuario.getEmail(),
+                usuario.getRol()
+            );
+        } else {
+            throw new RuntimeException("No se encontró un usuario autenticado válido. Principal es: " + principal.getClass().getSimpleName());
+        }
+    }
 }
