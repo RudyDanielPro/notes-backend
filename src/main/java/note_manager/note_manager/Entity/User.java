@@ -55,6 +55,8 @@ public User(String nombre, String apellido, Integer edad, String email, String p
     this.rol = "USER";
     this.notas = new ArrayList<>();
 }
+public User() {
+}
 
 
 public Long getId() {

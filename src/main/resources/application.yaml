@@ -2,41 +2,45 @@ spring:
   application:
     name: note-manager
   
-  # Configuración de Base de Datos
   datasource:
     url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
     hikari:
-      maximum-pool-size: 10
-      minimum-idle: 5
+      maximum-pool-size: 5
+      minimum-idle: 2
       connection-timeout: 30000
-      idle-timeout: 600000
-      max-lifetime: 1800000
+      idle-timeout: 300000
+      max-lifetime: 600000
+      connection-test-query: SELECT 1
+      validation-timeout: 5000
+      leak-detection-threshold: 60000
   
-  # Configuración de JPA
   jpa:
     show-sql: false
     hibernate:
       ddl-auto: update
     properties:
       hibernate:
-        format_sql: true
+        format_sql: false
         dialect: org.hibernate.dialect.PostgreSQLDialect
+        jdbc:
+          lob:
+            non_contextual_creation: true
+        connection:
+          handling_mode: DELAYED_ACQUISITION_AND_RELEASE_AFTER_TRANSACTION
 
-# Puerto del servidor
 server:
   port: 8080
   
-# Configuración JWT
 jwt:
   secret: ${JWT_SECRET}
-  expiration: 3200000  
-
+  expiration: 3200000
 
 logging:
   level:
     org.springframework.security: WARN
     note_manager: INFO
     org.hibernate: WARN
+    com.zaxxer.hikari: WARN
