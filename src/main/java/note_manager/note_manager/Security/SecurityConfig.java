@@ -29,8 +29,9 @@ public class SecurityConfig {
             .sessionManagement(session -> 
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                // CORRECCIÓN: Solo permitimos explícitamente login y register
                 .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()
+                // AQUÍ PROTEGEMOS LAS RUTAS DEL ADMIN
+                .requestMatchers("/api/admin/**").hasRole("ADMIN")
                 .anyRequest().authenticated()
             )
             .addFilterBefore(jwtAuthenticationFilter, 

@@ -44,3 +44,11 @@ logging:
     note_manager: INFO
     org.hibernate: WARN
     com.zaxxer.hikari: WARN
+
+
+admin:
+  user:
+    email: ${ADMIN_EMAIL}
+    password: ${ADMIN_PASSWORD}
+    nombre: ${ADMIN_NOMBRE}
+    apellido: ${ADMIN_APELLIDO}
