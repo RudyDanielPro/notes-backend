@@ -19,6 +19,9 @@ public class User {
     @Column(name = "Apellido", nullable = false)
     private String apellido;
 
+    @Column(name = "Usuario", nullable = false, unique = true)
+    private String username;
+
     @Column(name = "Edad", nullable = false)
     private Integer edad;
 
@@ -36,21 +39,19 @@ public class User {
     @JsonIgnore
     private List<Note> notas = new ArrayList<>();
 
-    // Constructor completo
-    public User(String nombre, String apellido, Integer edad, String email, String password) {
+    public User(String nombre, String apellido, Integer edad, String email, String password, String username) {
         this.nombre = nombre;
         this.apellido = apellido;
         this.edad = edad;
         this.email = email;
         this.password = password;
+        this.username = username;
         this.rol = "USER";
     }
 
-    // Constructor vacío (Obligatorio para Hibernate y el Initializer)
     public User() {
     }
 
-    // Getters y Setters
     public Long getId() {
         return id;
     }
@@ -124,4 +125,13 @@ public class User {
         this.notas.remove(nota);
         nota.setUsuario(null);
     }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
 }

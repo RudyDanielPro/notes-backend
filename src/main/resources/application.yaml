@@ -52,3 +52,4 @@ admin:
     password: ${ADMIN_PASSWORD}
     nombre: ${ADMIN_NOMBRE}
     apellido: ${ADMIN_APELLIDO}
+    role: ${ADMIN_ROLE}

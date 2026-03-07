@@ -1,7 +1,6 @@
 package note_manager.note_manager.Services;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,59 +28,66 @@ public class UserServices {
 
     public UserProfile registerUser(RegisterRequest request) {
         if (userRepository.existsByEmail(request.getEmail())) {
-            throw new RuntimeException("El email ya esta registrado");
+            throw new RuntimeException("El email ya está registrado");
+        }
+        
+        if (userRepository.existsByUsername(request.getUsername())) {
+            throw new RuntimeException("El nombre de usuario ya está en uso");
         }
 
         String encriptacion = passwordEncoder.encode(request.getPassword());
-        User user = new User(request.getNombre(), request.getApellido(), request.getEdad(), request.getEmail(),
-                encriptacion);
-
-        user.setRol("USER"); // <-- IMPORTANTE: Cambiado a mayúsculas para evitar problemas con Spring
-                             // Security
+        
+        User user = new User();
+        user.setUsername(request.getUsername());
+        user.setNombre(request.getNombre());
+        user.setApellido(request.getApellido());
+        user.setEdad(request.getEdad());
+        user.setEmail(request.getEmail());
+        user.setPassword(encriptacion);
+        user.setRol("USER"); 
 
         User usuarioGuardado = userRepository.save(user);
 
-        return new UserProfile(usuarioGuardado.getId(), usuarioGuardado.getNombre(),
-                usuarioGuardado.getApellido(), usuarioGuardado.getEdad(), usuarioGuardado.getEmail(),
-                usuarioGuardado.getRol());
+        return convertToProfile(usuarioGuardado);
     }
 
     public LoginResponse login(LoginRequest request) {
-        Optional<User> usuarioOpt = userRepository.findByEmail(request.getEmail());
+        User usuario = userRepository.findByUsernameOrEmail(request.getIdentificador(), request.getIdentificador())
+                .orElseThrow(() -> new InvalidCredentialsException("Usuario o contraseña incorrectos"));
 
-        if (usuarioOpt.isEmpty() || !passwordEncoder.matches(request.getPassword(), usuarioOpt.get().getPassword())) {
-            throw new InvalidCredentialsException("Email o contraseña incorrectos");
+        if (!passwordEncoder.matches(request.getPassword(), usuario.getPassword())) {
+            throw new InvalidCredentialsException("Usuario o contraseña incorrectos");
         }
 
-        User usuario = usuarioOpt.get();
         String token = jwtUtil.generarToken(usuario.getEmail(), usuario.getRol());
 
         return new LoginResponse(token, usuario.getEmail(), usuario.getNombre(), usuario.getRol());
     }
 
-    // ==========================================
-    // MÉTODOS CRUD PARA EL ADMINISTRADOR
-    // ==========================================
-
     public List<UserProfile> getAllUsers() {
         return userRepository.findAll().stream()
-                .map(u -> new UserProfile(u.getId(), u.getNombre(), u.getApellido(), u.getEdad(), u.getEmail(),
-                        u.getRol()))
+                .map(this::convertToProfile)
                 .collect(Collectors.toList());
     }
 
     public UserProfile getUserById(Long id) {
-        User u = userRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
-        return new UserProfile(u.getId(), u.getNombre(), u.getApellido(), u.getEdad(), u.getEmail(), u.getRol());
+        User u = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        return convertToProfile(u);
     }
 
     public UserProfile updateUser(Long id, RegisterRequest request, String nuevoRol) {
-        User usuario = userRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+        User usuario = userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
 
         usuario.setNombre(request.getNombre());
         usuario.setApellido(request.getApellido());
         usuario.setEdad(request.getEdad());
         usuario.setEmail(request.getEmail());
+        
+        if (request.getUsername() != null) {
+            usuario.setUsername(request.getUsername());
+        }
 
         if (request.getPassword() != null && !request.getPassword().isEmpty()) {
             usuario.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -92,8 +98,7 @@ public class UserServices {
         }
 
         User guardado = userRepository.save(usuario);
-        return new UserProfile(guardado.getId(), guardado.getNombre(), guardado.getApellido(), guardado.getEdad(),
-                guardado.getEmail(), guardado.getRol());
+        return convertToProfile(guardado);
     }
 
     public void deleteUser(Long id) {
@@ -101,5 +106,16 @@ public class UserServices {
             throw new RuntimeException("Usuario no encontrado");
         }
         userRepository.deleteById(id);
+    }
+
+    private UserProfile convertToProfile(User u) {
+        return new UserProfile(
+            u.getId(), 
+            u.getNombre(), 
+            u.getApellido(), 
+            u.getEdad(), 
+            u.getEmail(), 
+            u.getRol()
+        );
     }
 }

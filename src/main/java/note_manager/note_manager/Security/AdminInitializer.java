@@ -1,10 +1,10 @@
 package note_manager.note_manager.Security;
 
+import java.util.Optional;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
-
 import note_manager.note_manager.Entity.User;
 import note_manager.note_manager.Repository.UserRepository;
 
@@ -26,6 +26,9 @@ public class AdminInitializer implements CommandLineRunner {
     @Value("${admin.user.apellido}")
     private String adminApellido;
 
+    @Value("${admin.user.role}")
+    private String adminRole;
+
     public AdminInitializer(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
@@ -33,21 +36,17 @@ public class AdminInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        if (userRepository.findByEmail(adminEmail).isEmpty()) {
-            User admin = new User();
-            admin.setNombre(adminNombre);
-            admin.setApellido(adminApellido);
-            admin.setEdad(0);
-            admin.setEmail(adminEmail);
-            admin.setPassword(passwordEncoder.encode(adminPassword));
-            admin.setRol("ADMIN");
+        Optional<User> adminOpt = userRepository.findByEmail(adminEmail);
 
-            userRepository.save(admin);
+        User admin = adminOpt.orElse(new User());
+        admin.setNombre(adminNombre);
+        admin.setApellido(adminApellido);
+        admin.setEdad(0);
+        admin.setEmail(adminEmail);
+        admin.setUsername("admin");
+        admin.setPassword(passwordEncoder.encode(adminPassword));
+        admin.setRol(adminRole != null ? adminRole : "ADMIN");
 
-            System.out.println("--------------------------------------");
-            System.out.println("✅ USUARIO ADMIN CONFIGURADO");
-            System.out.println("📧 Email: " + adminEmail);
-            System.out.println("--------------------------------------");
-        }
+        userRepository.save(admin);
     }
 }

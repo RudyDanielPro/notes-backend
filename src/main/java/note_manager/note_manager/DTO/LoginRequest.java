@@ -2,7 +2,7 @@ package note_manager.note_manager.DTO;
 
 public class LoginRequest {
     
-    private String email;
+    private String identificador;
     private String password;
     
     
@@ -10,17 +10,17 @@ public class LoginRequest {
     public LoginRequest() {
     }
 
-    public LoginRequest(String email, String password) {
-        this.email = email;
+    public LoginRequest(String identificador, String password) {
+        this.identificador = identificador;
         this.password = password;
     }
 
-    public String getEmail() {
-        return email;
+    public String getIdentificador() {
+        return identificador;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
+    public void setIdentificador(String identificador) {
+        this.identificador = identificador;
     }
 
     public String getPassword() {
