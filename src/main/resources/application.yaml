@@ -46,3 +46,10 @@ logging:
     com.zaxxer.hikari: WARN
 
 
+admin:
+  user:
+    email: ${ADMIN_EMAIL}
+    password: ${ADMIN_PASSWORD}
+    nombre: ${ADMIN_NOMBRE}
+    apellido: ${ADMIN_APELLIDO}
+    role: ${ADMIN_ROLE}
